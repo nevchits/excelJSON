@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directory Website</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h2>Contact Directory</h2>
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search for names..">
+    <table id="contactsTable">
+        <tr>
+            <th>Title</th>
+            <th>First Name</th>
+            <th>Surname</th>
+            <th>Job Title</th>
+            <th>Extension</th>
+            <th>Email Address</th>
+            <th>Institute</th>
+            <th>Last Update</th>
+        </tr>
+    </table>
+
+    <script src="contacts.js"></script>
+
+    <script>
+        function filterTable() {
+          var input, filter, table, tr, td, i, txtValue;
+          input = document.getElementById("searchInput");
+          filter = input.value.toUpperCase();
+          table = document.getElementById("contactsTable");
+          tr = table.getElementsByTagName("tr");
+          for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1]; // Get the second column (First Name)
+            if (td) {
+              txtValue = td.textContent || td.innerText;
+              if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+              } else {
+                tr[i].style.display = "none";
+              }
+            }       
+          }
+        }
+        
+        function createSipLink(extension) {
+          return extension ? '<a href="sip:${extension}">${extension}</a>' : 'N/A';
+        }
+        
+        fetch('contacts.json')
+        .then(response => response.json())
+        .then(data => {
+            var table = document.getElementById('contactsTable');
+            for (var i = 0; i < Object.keys(data.SURNAME).length; i++) {
+                var row = table.insertRow(-1);
+                
+                var cellTitle = row.insertCell(-1);
+                cellTitle.innerHTML = data.TITLE[i];
+                
+                var cellFirstName = row.insertCell(-1);
+                cellFirstName.innerHTML = data.FIRSTNAME[i];
+                
+                var cellSurname = row.insertCell(-1);
+                cellSurname.innerHTML = data.SURNAME[i];
+                
+                var cellJobTitle = row.insertCell(-1);
+                cellJobTitle.innerHTML = data.JOBTITLE[i];
+                
+                var cellExtension = row.insertCell(-1);
+                cellExtension.innerHTML = createSipLink(data.EXTENSION[i]);
+                
+                var cellEmail = row.insertCell(-1);
+                cellEmail.innerHTML = data["E-MAIL ADDRESS"][i] ? data["E-MAIL ADDRESS"][i] : 'N/A';
+                
+                var cellInstitute = row.insertCell(-1);
+                cellInstitute.innerHTML = data.INSTITUTE[i];
+                
+                var cellUpdate = row.insertCell(-1);
+                var dateUpdate = new Date(data.UPDATE[i]);
+                cellUpdate.innerHTML = dateUpdate.toDateString();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    </script>
+
+</body>
+</html>
